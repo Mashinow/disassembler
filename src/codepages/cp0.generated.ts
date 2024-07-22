@@ -47,6 +47,7 @@ CP0Auto.insertHex('2', 4, (slice) => {
 CP0Auto.insertHex('3', 4, (slice) => {
     let value = slice.loadUint(4);
     if(value===0) {return "DROP";}
+    if(value===1) {return "NIP";}
     return `s${value} POP`;
 })
 CP0Auto.insertHex('4', 4, (slice) => {
@@ -147,6 +148,7 @@ CP0Auto.insertHex('56', 8, (slice) => {
 CP0Auto.insertHex('57', 8, (slice) => {
     let args = slice.loadUint(8);
     if(args===0) {return "DROP";}
+    if(args===1) {return "NIP";}
     return `s${args} POP`;
 });
 CP0Auto.insertHex('58', 8, 'ROT');
@@ -930,6 +932,7 @@ CP0Auto.insertHex('ed4', 12, (slice) => {
 CP0Auto.insertHex('ed5', 12, (slice) => {
     let x = slice.loadUint(4);
     if(x===0) {return "DROP";}
+    if(x===1) {return "NIP";}
     return `c${x} POP`;
 });
 // 15554560 (DUMMY)
@@ -1351,7 +1354,7 @@ CP0Auto.insertHex('f943', 16, 'SDATASIZE');
 // 16335872 (DUMMY)
 CP0Auto.insertHex('fa00', 16, 'LDVARUINT16');
 CP0Auto.insertHex('fa01', 16, 'LDVARINT16');
-CP0Auto.insertHex('fa02', 16, 'STGRAMS');
+CP0Auto.insertHex('fa02', 16, 'STVARUINT16');
 CP0Auto.insertHex('fa03', 16, 'STVARINT16');
 CP0Auto.insertHex('fa04', 16, 'LDVARUINT32');
 CP0Auto.insertHex('fa05', 16, 'LDVARINT32');
