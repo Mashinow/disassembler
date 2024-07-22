@@ -90,6 +90,7 @@ export function decompile(slice: Slice, indent?: number) {
 
         let op = codepage.getOp(opCode)
         opCode = ''
+
         if (typeof op === 'string') {
             append(op)
         } else if (typeof op === 'function') {

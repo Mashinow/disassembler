@@ -14,6 +14,16 @@ function fetchSubslice(slice: Slice, bits: number, refs?: number) {
     return subcell.asSlice();
 }
 
+function s(val: number)
+{
+let res = `${val}`;
+if(val<0)
+{
+    res = '(' + res + ')';
+}
+return 's' + res;
+}
+
 
 const CP0Auto = new Codepage()
 
@@ -110,14 +120,14 @@ CP0Auto.insertHex('544', 12, (slice) => {
     let i = args >> 8 & 0xf;
     let j = args >> 4 & 0xf;
     let k = args & 0xf;
-    return `s${i} s${j-1} s(${k-1}) PUXC2`;
+    return `${s(i)} ${s(j-1)} ${s(k-1)} PUXC2`;
 });
 CP0Auto.insertHex('545', 12, (slice) => {
     let args = slice.loadUint(12);
     let i = args >> 8 & 0xf;
     let j = args >> 4 & 0xf;
     let k = args & 0xf;
-    return `${i} ${j-1} ${k-1} PUXCPU`;
+    return `${s(i)} ${s(j-1)} ${s(k-1)} PUXCPU`;
 });
 CP0Auto.insertHex('546', 12, (slice) => {
     let args = slice.loadUint(12);
@@ -1332,12 +1342,12 @@ CP0Auto.insertHex('f833', 16, 'CONFIGOPTPARAM');
 // CP0Auto.insertHex('f84000', 16, 'GETGLOBVAR');
 CP0Auto.insertHex('f841', 11, (slice) => {
     let args = slice.loadUint(5);
-    return `${args} GETGLOBVAR`;
+    return `${args} PUSHINT GETGLOBVAR`;
 });
 // CP0Auto.insertHex('f86000', 16, 'SETGLOBVAR');
 CP0Auto.insertHex('f861', 11, (slice) => {
     let args = slice.loadUint(5);
-    return `${args} SETGLOBVAR`;
+    return `${args} PUSHINT SETGLOBVAR`;
 });
 // 16285696 (DUMMY)
 CP0Auto.insertHex('f900', 16, 'HASHCU');
