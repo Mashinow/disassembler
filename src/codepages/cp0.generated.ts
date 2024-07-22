@@ -1245,7 +1245,8 @@ CP0Auto.insertHex('f4a0', 13, (slice, indent) => {
             _isDebug() && console.error(e);
             decompiled = subslice.asCell().toString(' '.repeat(indent));
         }
-        return `${decompiled} ${keyLen} DICTPUSHCONST`;
+        //return `${decompiled} ${keyLen} DICTPUSHCONST`;
+        return `${decompiled}`;
     }
     let exec = slice.loadBit();
     let usign = slice.loadBit();

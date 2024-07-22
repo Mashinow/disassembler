@@ -33,7 +33,7 @@ async function getContractSource() {
         });
     } catch (error) {
         console.error('Error reading file or processing contract source:', error);
-    }
+    } //qwerty
 }
 
 let is_debug=true;

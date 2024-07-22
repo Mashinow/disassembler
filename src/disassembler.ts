@@ -133,15 +133,36 @@ export function decompileMethodsMap(slice: Slice, keyLen: number, indent?: numbe
         }
         result += txt + '\n';
     };
-    append('(:methods');
+  //  append('(:methods');
     indent = (indent || 0) + 2;
+    let methodNames = [];
     for (let [methodId, code] of methodsMapDecompiled) {
-        append(`${KnownMethods[methodId] ?? methodId}: \n${code}`);
+        let methodName = KnownMethods[methodId] ?? null;
+        methodNames.push([methodId, methodName]);
+        append(`${methodName ?? methodId} PROC:<{\n${code}  }>`);
     }
     result = result.slice(0, -1); // remove trailing newline
     indent -= 2;
-    append(')');
+    //append(')');
     result = result.slice(0, -1); // remove trailing newline
+
+    let methods = "";
+
+    for (let [methodId, methodName] of methodNames) {
+        methods += "  ";
+        if (methodName) {
+            methodName = String(methodName);
+            if (methodName.startsWith("get_")) {
+                methods += `${methodId} DECLMETHOD ${methodName}\n`;
+            } else {
+                methods += `DECLPROC ${methodName}\n`;
+            }
+        } else {
+            methods += `DECLPROC ${methodId}\n`;
+        }
+    }
+    let start_text = "\"Asm.fif\" include\n\nPROGRAM{\n";
+    result = start_text + methods + result + ">\n}END>c";
     return result;
 }
 
@@ -152,9 +173,11 @@ export function fromCode(cell: Cell) {
         throw new Error('unsupported codepage');
     }
 
-    let result = 'SETCP0\n'
+    let result = '' //'SETCP0\n'
     result += decompile(slice);
-    return result;
+    const lines = result.split('\n');
+    lines.splice(-3, 3);
+    return lines.join('\n');;
 }
 
 export function fromBoc(boc: Buffer) {
