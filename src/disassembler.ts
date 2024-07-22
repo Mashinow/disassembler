@@ -4,11 +4,32 @@ import { KnownMethods } from './consts/knownMethods';
 import { Codepage } from './structs/codepage';
 import { _isDebug } from './utils/isDebug';
 
+
 let codepage: Codepage = CP0Auto
 
 export function setCodepage(cp: Codepage) {
     codepage = cp
 }
+
+function bracketIndices(str: string) {
+    const stack = [];
+    const result = [];
+  
+    for (let i = str.length; i >= 0; i--) {
+      if (str[i] === '}') {
+        stack.push(result.push([ i, null ]) - 1);
+      } else if (str[i] === '{') {
+        if (stack.length) {
+          result[stack.pop()!][1] = i;
+        } else {
+          result.push([ null, i ]);
+        }
+      }
+    }
+  
+    return result;
+  }
+  
 
 export function decompile(slice: Slice, indent?: number) {
     let result = '';
@@ -17,10 +38,31 @@ export function decompile(slice: Slice, indent?: number) {
             result += txt.toString(' '.repeat(indent || 0));
             return;
         }
-        if (indent) {
-            for (let i = 0; i < indent; i++) result += ' ';
+        if (txt.startsWith("LEFT! ")) {
+            if(!indent) return;
+            let data = bracketIndices(result);
+            const insertionPoint: number = data[0][1]!;
+            result = result.slice(0, insertionPoint-2) + txt.slice(6) + result.slice(insertionPoint-2);
         }
-        result += txt + '\n'
+
+        else if (txt.startsWith("IFELSE")) {
+            if(!indent) return;
+            let data = bracketIndices(result);
+           // const sc1: number = data[0][0]!;
+            const so1: number = data[0][1]!;
+            const sc2: number = data[1][0]!;
+            const so2: number = data[1][1]!;
+            result = result.slice(0, so2 - 2) + "IF:<{" +
+                        result.slice(so2+1, sc2) + 
+                        "}>ELSE<{" +
+                        result.slice(so1 + 1);
+        }
+        else {
+            if (indent) {
+                for (let i = 0; i < indent; i++) result += ' ';
+            }
+            result += txt + '\n';
+        }
     };
     let opCode = ''
 

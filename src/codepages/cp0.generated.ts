@@ -22,6 +22,7 @@ CP0Auto.insertHex('0', 4, (slice) => {
     if (n == 0) {
         return `NOP`;
     }
+	if(n === 1) {return `SWAP`;}
     return `s0 s${n} XCHG`;
 })
 CP0Auto.insertHex('1', 4, (slice) => {
@@ -39,10 +40,13 @@ CP0Auto.insertHex('1', 4, (slice) => {
 })
 CP0Auto.insertHex('2', 4, (slice) => {
     let n = slice.loadUint(4);
+	if(n===0) {return "DUP";}
+    if(n === 1) {return "OVER";}
     return `s${n} PUSH`;
 })
 CP0Auto.insertHex('3', 4, (slice) => {
     let value = slice.loadUint(4);
+    if(value===0) {return "DROP";}
     return `s${value} POP`;
 })
 CP0Auto.insertHex('4', 4, (slice) => {
@@ -105,7 +109,7 @@ CP0Auto.insertHex('544', 12, (slice) => {
     let i = args >> 8 & 0xf;
     let j = args >> 4 & 0xf;
     let k = args & 0xf;
-    return `${i} ${j-1} ${k-1} PUXC2`;
+    return `s${i} s${j-1} s(${k-1}) PUXC2`;
 });
 CP0Auto.insertHex('545', 12, (slice) => {
     let args = slice.loadUint(12);
@@ -137,14 +141,16 @@ CP0Auto.insertHex('55', 8, (slice) => {
 });
 CP0Auto.insertHex('56', 8, (slice) => {
     let args = slice.loadUint(8);
+    if(args === 1) {return "OVER";}
     return `s${args} PUSH`;
 });
 CP0Auto.insertHex('57', 8, (slice) => {
     let args = slice.loadUint(8);
+    if(args===0) {return "DROP";}
     return `s${args} POP`;
 });
 CP0Auto.insertHex('58', 8, 'ROT');
-CP0Auto.insertHex('59', 8, 'ROTREV');
+CP0Auto.insertHex('59', 8, '-ROT');
 CP0Auto.insertHex('5a', 8, '2SWAP');
 CP0Auto.insertHex('5b', 8, '2DROP');
 CP0Auto.insertHex('5c', 8, '2DUP');
@@ -325,12 +331,12 @@ CP0Auto.insertHex('8E', 7, (slice, indent) => {
 
     let subslice = fetchSubslice(slice, dataBytes, refs);
     // <{\n${decompile(slice.loadRef().beginParse(), indent + 2)}${new Array(indent).fill(' ').join('')}}> PUSHCONT`
-    return `<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}> PUSHCONT`
+    return `:<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}>`
 })
 CP0Auto.insertHex('9', 4, (slice, indent) => {
     let len = slice.loadUint(4) * 8;
     let subslice = fetchSubslice(slice, len);
-    return `<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}> PUSHCONT`
+    return `:<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}>`
 })
 
 CP0Auto.insertHex('a00000', 8, 'ADD');
@@ -834,9 +840,10 @@ CP0Auto.insertHex('db3f', 16, 'RETDATA');
 // 14368768 (DUMMY)
 CP0Auto.insertHex('dc', 8, 'IFRET');
 CP0Auto.insertHex('dd', 8, 'IFNOTRET');
-CP0Auto.insertHex('de', 8, 'IF');
+CP0Auto.insertHex('de', 8, 'LEFT! IF');
 CP0Auto.insertHex('df', 8, 'IFNOT');
-CP0Auto.insertHex('e0', 8, 'IFJMP');
+//CP0Auto.insertHex('e0', 8, 'IFJMP');
+CP0Auto.insertHex('e0', 8, 'LEFT! IFJMP');
 CP0Auto.insertHex('e1', 8, 'IFNOTJMP');
 CP0Auto.insertHex('e2', 8, 'IFELSE');
 CP0Auto.insertHex('e300', 16, (slice, indent) => {
@@ -849,7 +856,7 @@ CP0Auto.insertHex('e301', 16, (slice, indent) => {
 });
 CP0Auto.insertHex('e302', 16, (slice, indent) => {
     let subslice = slice.loadRef().beginParse();
-    return `<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}> IFJMPREF`;
+    return `IFJMP:<{\n${decompile(subslice, indent + 2)}${new Array(indent).fill(' ').join('')}}>`;
 });
 CP0Auto.insertHex('e303', 16, (slice, indent) => {
     let subslice = slice.loadRef().beginParse();
@@ -893,7 +900,7 @@ CP0Auto.insertHex('e3c', 10, (slice) => {
 });
 CP0Auto.insertHex('e4', 8, 'REPEAT');
 CP0Auto.insertHex('e5', 8, 'REPEATEND');
-CP0Auto.insertHex('e6', 8, 'UNTIL');
+CP0Auto.insertHex('e6', 8, 'LEFT! UNTIL');
 CP0Auto.insertHex('e7', 8, 'UNTILEND');
 CP0Auto.insertHex('e8', 8, 'WHILE');
 CP0Auto.insertHex('e9', 8, 'WHILEEND');
@@ -917,10 +924,12 @@ CP0Auto.insertHex('ed1f', 16, 'BLESSVARARGS');
 // 15540224 (DUMMY)
 CP0Auto.insertHex('ed4', 12, (slice) => {
     let n = slice.loadUint(4);
+    if(n === 1) {return "OVER";}
     return `c${n} PUSH`;
 });
 CP0Auto.insertHex('ed5', 12, (slice) => {
     let x = slice.loadUint(4);
+    if(x===0) {return "DROP";}
     return `c${x} POP`;
 });
 // 15554560 (DUMMY)
@@ -1339,7 +1348,7 @@ CP0Auto.insertHex('f941', 16, 'CDATASIZE');
 CP0Auto.insertHex('f942', 16, 'SDATASIZEQ');
 CP0Auto.insertHex('f943', 16, 'SDATASIZE');
 // 16335872 (DUMMY)
-CP0Auto.insertHex('fa00', 16, 'LDGRAMS');
+CP0Auto.insertHex('fa00', 16, 'LDVARUINT16');
 CP0Auto.insertHex('fa01', 16, 'LDVARINT16');
 CP0Auto.insertHex('fa02', 16, 'STGRAMS');
 CP0Auto.insertHex('fa03', 16, 'STVARINT16');

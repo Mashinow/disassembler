@@ -1,5 +1,7 @@
 dist/
 node_modules/
+test_data/
+index.ts
 
 .yarn/*
 !.yarn/releases

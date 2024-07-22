@@ -7,8 +7,9 @@
   "author": "Dan Volkov <danila@whalescorp.com>",
   "repository": "https://github.com/ton-foundation/disassembler.git",
   "scripts": {
-    "build": "rm -rf dist/ && tsc",
-    "release": "yarn build && release-it"
+    "build": "if exist dist (rd /s /q dist) && tsc",
+    "release": "yarn build && release-it",
+    "start": "npm run build && node ./dist/index.js"
   },
   "files": [
     "dist"
